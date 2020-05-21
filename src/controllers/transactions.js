@@ -1,6 +1,4 @@
-
 const transactionModel = require('../models/transactions')
-const bookModel = require('../models/books')
 const qs = require('querystring')
 const moment = require('moment')
 

@@ -1,6 +1,8 @@
 const bookModel = require('../models/books')
 const {APP_URL} = process.env
-const transactionModel = require('../models/transactions')
+const config = require('../utils/upload')
+const upload = config.single('picture')
+const multer = require('multer')
 const qs = require('querystring')
 const moment = require('moment')
 
@@ -78,96 +80,156 @@ module.exports = {
     }
     response.status(200).send(data)
   },
-  createBook: async (request, response) => {
-    const { title, description, genre, author } = request.body
-    if (title && description && genre && title !== '' && description !== '' && genre !== '') {
-      const isExsist = await bookModel.getBookByCondition({ title })
-      if (isExsist.length < 1) {
-        const bookData = {
-          title,
-          description,
-          genre,
-          author,
-          picture: `${process.env.APP_URL}/img/${request.file.filename}`,
-          created_at: moment().format('YYYY-MM-DD hh:mm:ss')
-        }
-        const result = await bookModel.createBook(bookData)
-        if (result) {
-          const data = {
-            success: true,
-            msg: 'Book data succesfully added!',
-            data: bookData
-          }
-          response.status(201).send(data)
+  createBook: async function (request, response) {
+    upload(request, response, async function (error) {
+      if (error instanceof multer.MulterError) {
+        return response.status(500).json({
+          status: 500,
+          msg: error,
+          data: []
+        })
+      } else if (error) {
+        return response.status(500).json({
+          status: 500,
+          msg: error,
+          data: []
+        })
+      }
+      try {
+        if (!request.file) {
+          return response.status(500).json({
+            status: 500,
+            msg: "Please choosing files...",
+            data: [],
+          });
         } else {
-          const data = {
-            success: false,
-            msg: 'Failed to add Book',
-            data: request.body
+          const { title, description, genre, author } = request.body
+          if (title && description && genre && title !== '' && description !== '' && genre !== '') {
+            const isExsist = await bookModel.getBookByCondition({ title })
+            if (isExsist.length < 1) {
+              const bookData = {
+                title,
+                description,
+                genre,
+                author,
+                picture: `${process.env.APP_URL}/img/${request.file.filename}`,
+                created_at: moment().format('YYYY-MM-DD hh:mm:ss')
+              }
+              const result = await bookModel.createBook(bookData)
+              if (result) {
+                const data = {
+                  success: true,
+                  msg: 'Book data succesfully added!',
+                  data: bookData
+                }
+                response.status(201).send(data)
+              } else {
+                  const data = {
+                  success: false,
+                  msg: 'Failed to add Book',
+                  data: request.body
+                }
+                response.status(400).send(data)
+              }
+            } else {
+              const data = {
+              success: false,
+              msg: 'Book alredy added'
+              }
+              response.status(400).send(data)
+            }
+          } else {
+              const data = {
+              success: false,
+              msg: 'all form must be filled'
+            }
+            response.status(400).send(data)
           }
-          response.status(400).send(data)
         }
-      } else {
-        const data = {
-          success: false,
-          msg: 'Book alredy added'
-        }
-        response.status(400).send(data)
+      } catch (error) {
+        return response.status(500).json({
+          status: 500,
+          msg: error,
+          data: []
+        })
       }
-    } else {
-      const data = {
-        success: false,
-        msg: 'all form must be filled'
-      }
-      response.status(400).send(data)
-    }
+    })
   },
-  updateBook: async (request, response) => {
-    const { id } = request.params
-    const { title, description, genre, author } = request.body
-    const fetchBook = await bookModel.getBookByCondition({ id: parseInt(id) })
-    if (fetchBook.length > 0) {
-      if (title && description && genre && title !== '' && description !== '' && genre !== '') {
-        const bookData = [
-          { title,
-            description,
-            genre,
-            author,
-            picture: `${process.env.APP_URL}/img/${request.file.filename}`,
-            updated_at: moment().format('YYYY-MM-DD hh:mm:ss')
-          },
-          { id: parseInt(id) }
-        ]
-        const result = await bookModel.updateBook(bookData)
-        if (result) {
-          console.log(result)
-          const data = {
-            success: true,
-            msg: 'Book has been updated',
-            data: bookData[0]
-          }
-          response.status(200).send(data)
+  updateBook: async function (request, response) {
+    upload(request, response, async function (error) {
+      if (error instanceof multer.MulterError) {
+        return response.status(500).json({
+          status: 500,
+          msg: error,
+          data: []
+        })
+      } else if (error) {
+        return response.status(500).json({
+          status: 500,
+          msg: error,
+          data: []
+        })
+      }
+  
+      try {
+        if (!request.file) {
+          return response.status(500).json({
+            status: 500,
+            message: "Please choosing files...",
+            data: [],
+          });
         } else {
-          const data = {
-            success: false,
-            msg: 'failed to update'
+          const { id } = request.params
+          const { title, description, genre, author } = request.body
+          const fetchBook = await bookModel.getBookByCondition({ id: parseInt(id) })
+          if (fetchBook.length > 0) {
+            if (title && description && genre && title !== '' && description !== '' && genre !== '') {
+              const bookData = [
+                { title,
+                  description,
+                  genre,
+                  author,
+                  picture: `${process.env.APP_URL}/img/${request.file.filename}`,
+                  updated_at: moment().format('YYYY-MM-DD hh:mm:ss')
+                },
+                { id: parseInt(id) }
+              ]
+              const result = await bookModel.updateBook(bookData)
+              if (result) {
+                const data = {
+                  success: true,
+                  msg: 'Book has been updated',
+                  data: bookData[0]
+                }
+                response.status(200).send(data)
+              } else {
+                const data = {
+                  success: false,
+                  msg: 'failed to update'
+                }
+                response.status(400).send(data)
+              }
+            } else {
+              const data = {
+                success: false,
+                msg: 'All form must be filled!'
+              }
+              response.status(400).send(data)
+            }
+          } else {
+            const data = {
+              success: false,
+              msg: `Book with id ${request.params.id} not found!`
+            }
+            response.status(400).send(data)
           }
-          response.status(400).send(data)
         }
-      } else {
-        const data = {
-          success: false,
-          msg: 'All form must be filled!'
-        }
-        response.status(400).send(data)
+      } catch (error) {
+        return response
+          .status(500)
+          .json({ status: 500, message: error, data: [] })
       }
-    } else {
-      const data = {
-        success: false,
-        msg: `Book with id ${request.params.id} not found!`
-      }
-      response.status(400).send(data)
-    }
+    })
   },
   deleteBook: async (request, response) => {
     const { id } = request.params
