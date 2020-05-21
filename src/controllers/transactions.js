@@ -80,6 +80,7 @@ module.exports = {
           book_id,
           employee_id,
           user_id,
+          status: 1,
           created_at: moment().format('YYYY-MM-DD hh:mm:ss')
         }
         const result = await transactionModel.createTransaction(transactionData)

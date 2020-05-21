@@ -90,7 +90,21 @@ module.exports = {
           const data = {
             success: true,
             msg: 'employee data succesfully created!',
-            data: employeeData
+            data: {
+              name: employeeData.name,
+              email: employeeData.email,
+              created_at: employeeData.created_at,
+              token: jwt.sign(
+                {
+                  name: employeeData.name,
+                  email: employeeData.email
+                },
+                process.env.JWT_KEY,
+                {
+                  expiresIn: '1h'
+                }
+              )
+            }
           }
           response.status(201).send(data)
         } else {

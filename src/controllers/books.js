@@ -1,4 +1,5 @@
 const bookModel = require('../models/books')
+const {APP_URL} = process.env
 const transactionModel = require('../models/transactions')
 const qs = require('querystring')
 const moment = require('moment')
@@ -71,8 +72,8 @@ module.exports = {
         totalPage,
         perPage: getPerPage(limit),
         totalData,
-        nextLink: nextLink && `http:/localhost:8080/books?${nextLink}`,
-        prevLink: prevLink && `http:/localhost:8080/books?${prevLink}`
+        nextLink: nextLink && `${process.env.APP_URL}/books?${nextLink}`,
+        prevLink: prevLink && `${process.env.APP_URL}/books?${prevLink}`
       }
     }
     response.status(200).send(data)
@@ -87,7 +88,7 @@ module.exports = {
           description,
           genre,
           author,
-          picture: `http://localhost:8080/img/${request.file.filename}`,
+          picture: `${process.env.APP_URL}/img/${request.file.filename}`,
           created_at: moment().format('YYYY-MM-DD hh:mm:ss')
         }
         const result = await bookModel.createBook(bookData)
@@ -132,7 +133,7 @@ module.exports = {
             description,
             genre,
             author,
-            picture: `http://localhost:8080/img/${request.file.filename}`,
+            picture: `${process.env.APP_URL}/img/${request.file.filename}`,
             updated_at: moment().format('YYYY-MM-DD hh:mm:ss')
           },
           { id: parseInt(id) }

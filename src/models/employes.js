@@ -2,7 +2,7 @@ const db = require('../utils/DB')
 
 module.exports = {
   getAllEmployee: (start, end) => {
-    const sql = `SELECT * FROM employes LIMIT ${end} OFFSET ${start}`
+    const sql = `SELECT id, name, email, created_at, updated_at FROM employes LIMIT ${end} OFFSET ${start}`
     return new Promise((resolve, reject) => {
       db.query(sql, (error, result, fields) => {
         if (error) {
