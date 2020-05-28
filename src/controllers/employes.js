@@ -6,6 +6,7 @@ const moment = require('moment')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const saltRounds = 10
+const {APP_URL} = process.env
 
 const getPage = (_page) => {
   const page = parseInt(_page)
@@ -51,14 +52,21 @@ const getPrevLinkQueryString = (page, currentQuery) => {
 
 module.exports = {
   getAllEmployes: async (request, response) => {
-    const { page, limit } = request.query
+    const { page, limit, search, sort } = request.query
+    const condition = {
+      search,
+      sort
+    }
+
     const totalData = await employeeModel.getEmployeeCount()
     const totalPage = Math.ceil(totalData / getPerPage(limit))
     const sliceStart = (getPage(page) * getPerPage(limit)) - getPerPage(limit)
     const sliceEnd = (getPage(page) * getPerPage(limit))
+
     const prevLink = getPrevLinkQueryString(getPage(page), request.query)
     const nextLink = getNextLinkQueryString(getPage(page), totalPage, request.query)
-    const employeeData = await employeeModel.getAllEmployee(sliceStart, sliceEnd)
+
+    const employeeData = await employeeModel.getAllEmployee(sliceStart, sliceEnd, condition)
     const data = {
       success: true,
       msg: 'List all employes',
@@ -68,8 +76,8 @@ module.exports = {
         totalPage,
         perPage: getPerPage(limit),
         totalData,
-        nextLink: nextLink && `http:/localhost:8080/employes?${nextLink}`,
-        prevLink: prevLink && `http:/localhost:8080/employes?${prevLink}`
+        nextLink: nextLink && `${process.env.APP_URL}/employes?${nextLink}`,
+        prevLink: prevLink && `${process.env.APP_URL}/employes?${prevLink}`
       }
     }
     response.status(200).send(data)

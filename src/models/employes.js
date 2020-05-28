@@ -1,8 +1,11 @@
 const db = require('../utils/DB')
 
 module.exports = {
-  getAllEmployee: (start, end) => {
-    const sql = `SELECT id, name, email, created_at, updated_at FROM employes LIMIT ${end} OFFSET ${start}`
+  getAllEmployee: (start, end, data = {}) => {
+    const sql = `SELECT id, name, email, created_at, updated_at FROM employes 
+    WHERE name LIKE '${data.search || ''}%' 
+    ORDER BY name ${parseInt(data.sort) ? 'DESC' : 'ASC'}
+    LIMIT ${end} OFFSET ${start}`
     return new Promise((resolve, reject) => {
       db.query(sql, (error, result, fields) => {
         if (error) {
@@ -12,8 +15,10 @@ module.exports = {
       })
     })
   },
-  getEmployeeCount: () => {
-    const sql = 'SELECT COUNT(*) as total FROM employes'
+  getEmployeeCount: (data = {}) => {
+    const sql = `SELECT COUNT(*) as total FROM employes
+    WHERE name LIKE '${data.search || ''}%' 
+    ORDER BY name ${parseInt(data.sort) ? 'DESC' : 'ASC'}`
     return new Promise((resolve, reject) => {
       db.query(sql, (error, result) => {
         if (error) {

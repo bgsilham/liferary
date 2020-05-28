@@ -2,6 +2,7 @@
 const genreModel = require('../models/genres')
 const qs = require('querystring')
 const moment = require('moment')
+const {APP_URL} = process.env
 
 const getPage = (_page) => {
   const page = parseInt(_page)
@@ -47,14 +48,21 @@ const getPrevLinkQueryString = (page, currentQuery) => {
 
 module.exports = {
   getAllGenres: async (request, response) => {
-    const { page, limit } = request.query
+    const { page, limit, search, sort } = request.query
+    const condition = {
+      search,
+      sort
+    }
+
     const totalData = await genreModel.getGenreCount()
     const totalPage = Math.ceil(totalData / getPerPage(limit))
     const sliceStart = (getPage(page) * getPerPage(limit)) - getPerPage(limit)
     const sliceEnd = (getPage(page) * getPerPage(limit))
+
     const prevLink = getPrevLinkQueryString(getPage(page), request.query)
     const nextLink = getNextLinkQueryString(getPage(page), totalPage, request.query)
-    const genreData = await genreModel.getAllGenre(sliceStart, sliceEnd)
+
+    const genreData = await genreModel.getAllGenre(sliceStart, sliceEnd, condition)
     const data = {
       success: true,
       msg: 'List all genres',
@@ -64,8 +72,8 @@ module.exports = {
         totalPage,
         perPage: getPerPage(limit),
         totalData,
-        nextLink: nextLink && `http:/localhost:8080/genres?${nextLink}`,
-        prevLink: prevLink && `http:/localhost:8080/genres?${prevLink}`
+        nextLink: nextLink && `${process.env.APP_URL}/genres?${nextLink}`,
+        prevLink: prevLink && `${process.env.APP_URL}/genres?${prevLink}`
       }
     }
     response.status(200).send(data)

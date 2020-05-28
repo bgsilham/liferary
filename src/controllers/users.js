@@ -5,6 +5,7 @@ const moment = require('moment')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const saltRounds = 10
+const {APP_URL} = process.env
 
 const getPage = (_page) => {
   const page = parseInt(_page)
@@ -50,14 +51,21 @@ const getPrevLinkQueryString = (page, currentQuery) => {
 
 module.exports = {
   getAllUsers: async (request, response) => {
-    const { page, limit } = request.query
+    const { page, limit, search, sort } = request.query
+    const condition = {
+      search,
+      sort
+    }
+
     const totalData = await userModel.getUserCount()
     const totalPage = Math.ceil(totalData / getPerPage(limit))
     const sliceStart = (getPage(page) * getPerPage(limit)) - getPerPage(limit)
     const sliceEnd = (getPage(page) * getPerPage(limit))
+    
     const prevLink = getPrevLinkQueryString(getPage(page), request.query)
     const nextLink = getNextLinkQueryString(getPage(page), totalPage, request.query)
-    const userData = await userModel.getAllUser(sliceStart, sliceEnd)
+
+    const userData = await userModel.getAllUser(sliceStart, sliceEnd, condition)
     const data = {
       success: true,
       msg: 'List all users',
@@ -67,8 +75,8 @@ module.exports = {
         totalPage,
         perPage: getPerPage(limit),
         totalData,
-        nextLink: nextLink && `http:/localhost:8080/users?${nextLink}`,
-        prevLink: prevLink && `http:/localhost:8080/users?${prevLink}`
+        nextLink: nextLink && `${process.env.APP_URL}/users?${nextLink}`,
+        prevLink: prevLink && `${process.env.APP_URL}/users?${prevLink}`
       }
     }
     response.status(200).send(data)
@@ -89,7 +97,11 @@ module.exports = {
           const data = {
             success: true,
             msg: 'user data succesfully created!',
-            data: userData
+            data: {
+              name: userData.name,
+              email: userData.email,
+              created_at: userData.created_at
+            }
           }
           response.status(201).send(data)
         } else {
@@ -181,7 +193,11 @@ module.exports = {
           const data = {
             success: true,
             msg: 'user has been updated',
-            data: userData[0]
+            data: {
+              name: userData[0].name,
+              email: userData[0].email,
+              updated_at: userData[0].updated_at
+            }
           }
           response.status(200).send(data)
         } else {

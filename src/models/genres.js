@@ -1,8 +1,11 @@
 const db = require('../utils/DB')
 
 module.exports = {
-  getAllGenre: (start, end) => {
-    const sql = `SELECT * FROM genres LIMIT ${end} OFFSET ${start}`
+  getAllGenre: (start, end, data = {}) => {
+    const sql = `SELECT * FROM genres 
+    WHERE name LIKE '${data.search || ''}%' 
+    ORDER BY name ${parseInt(data.sort) ? 'DESC' : 'ASC'}
+    LIMIT ${end} OFFSET ${start}`
     return new Promise((resolve, reject) => {
       db.query(sql, (error, result, fields) => {
         if (error) {
@@ -12,8 +15,10 @@ module.exports = {
       })
     })
   },
-  getGenreCount: () => {
-    const sql = 'SELECT COUNT(*) as total FROM genres'
+  getGenreCount: (data = {}) => {
+    const sql = `SELECT COUNT(*) as total FROM genres
+    WHERE name LIKE '${data.search || ''}%' 
+    ORDER BY name ${parseInt(data.sort) ? 'DESC' : 'ASC'}`
     return new Promise((resolve, reject) => {
       db.query(sql, (error, result) => {
         if (error) {

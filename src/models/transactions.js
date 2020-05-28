@@ -1,7 +1,7 @@
 const db = require('../utils/DB')
 
 module.exports = {
-  getAllTransaction: (start, end) => {
+  getAllTransaction: (start, end, data = {}) => {
     const sql = `SELECT transactions.id, books.title, employes.name as employee, 
     users.name as user, statuses.name as status, transactions.created_at, transactions.updated_at 
     FROM transactions
@@ -9,9 +9,11 @@ module.exports = {
     JOIN employes ON transactions.employee_id=employes.id
     JOIN users ON transactions.user_id=users.id
     JOIN statuses ON transactions.status=statuses.id
+    WHERE transactions.id LIKE '${data.search || ''}%' 
+    ORDER BY transactions.id ${parseInt(data.sort) ? 'DESC' : 'ASC'}
     LIMIT ${end} OFFSET ${start}`
     return new Promise((resolve, reject) => {
-      db.query(sql, (error, result, fields) => {
+      db.query(sql, (error, result) => {
         if (error) {
           reject(Error(error))
         }
@@ -19,8 +21,10 @@ module.exports = {
       })
     })
   },
-  getTransactionCount: () => {
-    const sql = 'SELECT COUNT(*) as total FROM transactions'
+  getTransactionCount: (data = {}) => {
+    const sql = `SELECT COUNT(*) as total FROM transactions
+    WHERE id LIKE '${data.search || ''}%' 
+    ORDER BY id ${parseInt(data.sort) ? 'DESC' : 'ASC'}`
     return new Promise((resolve, reject) => {
       db.query(sql, (error, result) => {
         if (error) {

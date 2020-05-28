@@ -1,6 +1,5 @@
 const router = require('express').Router()
 const booksController = require('../controllers/books')
-// const upload = require('../utils/upload')
 const auth = require('../utils/auth')
 
 router.use(auth)
