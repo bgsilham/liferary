@@ -120,7 +120,7 @@ module.exports = {
   },
   updateGenre: async (request, response) => {
     const { id } = request.params
-    const { name } = request.body
+    const {name} = request.body
     const fetchGenre = await genreModel.getGenreByCondition({ id: parseInt(id) })
     if (fetchGenre.length > 0) {
       if (name && name !== '') {
@@ -146,6 +146,24 @@ module.exports = {
           response.status(400).send(data)
         }
       }
+    } else {
+      const data = {
+        success: false,
+        msg: `genre with id ${request.params.id} not found!`
+      }
+      response.status(400).send(data)
+    }
+  },
+  getIdGenre: async (request, response) => {
+    const { id } = request.params
+    const fetchGenre = await genreModel.getGenreByCondition({ id: parseInt(id) })
+    if (fetchGenre.length > 0) {
+          const data = {
+            success: true,
+            msg: 'Success',
+            data: fetchGenre[0]
+          }
+          response.status(200).send(data)
     } else {
       const data = {
         success: false,

@@ -90,7 +90,7 @@ module.exports = {
           name,
           email,
           password: bcrypt.hashSync(request.body.password, saltRounds),
-          created_at: moment().format('YYYY-MM-DD hh:mm:ss')
+          created_at: moment().format('LLLL')
         }
         const result = await userModel.createUser(userData)
         if (result) {
@@ -152,10 +152,12 @@ module.exports = {
             id: data[0].id,
             name: data[0].name,
             email: data[0].email,
+            role: data[0].role,
             token: jwt.sign(
               {
                 name: data[0].name,
-                email: data[0].email
+                email: data[0].email,
+                role: 'user'
               },
               process.env.JWT_KEY,
               {
@@ -212,6 +214,24 @@ module.exports = {
       const data = {
         success: false,
         msg: `User with id ${request.params.id} not found!`
+      }
+      response.status(400).send(data)
+    }
+  },
+  getIdUser: async (request, response) => {
+    const { id } = request.params
+    const fetchUser = await userModel.getUserByCondition({ id: parseInt(id) })
+    if (fetchUser.length > 0) {
+          const data = {
+            success: true,
+            msg: 'Success',
+            data: fetchUser[0]
+          }
+          response.status(200).send(data)
+    } else {
+      const data = {
+        success: false,
+        msg: `user with id ${request.params.id} not found!`
       }
       response.status(400).send(data)
     }

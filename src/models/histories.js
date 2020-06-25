@@ -1,13 +1,13 @@
 const db = require('../utils/DB')
 
 module.exports = {
-  getAllBooks: (start, end, data = {}) => {
-    const sql = `SELECT books.id, books.title as title, books.description, genre,
-    books.author, books.picture, books.created_at, books.updated_at
-    FROM books WHERE title LIKE '${data.search || ''}%' 
-    ORDER BY title ${parseInt(data.sort) ? 'DESC' : 'ASC'} LIMIT ${end} OFFSET ${start}`
+  getAllHistory: (start, end, data = {}) => {
+    const sql = `SELECT * FROM histories 
+    WHERE title LIKE '${data.search || ''}%' 
+    ORDER BY title ${parseInt(data.sort) ? 'DESC' : 'ASC'}
+    LIMIT ${end} OFFSET ${start}`
     return new Promise((resolve, reject) => {
-      db.query(sql, (error, result) => {
+      db.query(sql, (error, result, fields) => {
         if (error) {
           reject(Error(error))
         }
@@ -15,8 +15,9 @@ module.exports = {
       })
     })
   },
-  getBookCount: (data = {}) => {
-    const sql = `SELECT COUNT(*) as total FROM books WHERE title LIKE '${data.search || ''}%' 
+  getHistoryCount: (data = {}) => {
+    const sql = `SELECT COUNT(*) as total FROM histories
+    WHERE title LIKE '${data.search || ''}%' 
     ORDER BY title ${parseInt(data.sort) ? 'DESC' : 'ASC'}`
     return new Promise((resolve, reject) => {
       db.query(sql, (error, result) => {
@@ -27,8 +28,8 @@ module.exports = {
       })
     })
   },
-  createBook: (data) => {
-    const sql = 'INSERT INTO books SET ?'
+  createHistory: (data) => {
+    const sql = 'INSERT INTO histories SET ?'
     return new Promise((resolve, reject) => {
       db.query(sql, data, (error, result) => {
         if (error) {
@@ -39,8 +40,8 @@ module.exports = {
       })
     })
   },
-  getBookByCondition: (data) => {
-    const sql = 'SELECT * FROM books WHERE ?'
+  getHistoryByCondition: (data) => {
+    const sql = 'SELECT * FROM histories WHERE ?'
     return new Promise((resolve, reject) => {
       db.query(sql, data, (error, result) => {
         if (error) {
@@ -50,8 +51,8 @@ module.exports = {
       })
     })
   },
-  updateBook: (data) => {
-    const sql = 'UPDATE books SET ? WHERE ?'
+  updateHistory: (data) => {
+    const sql = 'UPDATE histories SET ? WHERE ?'
     return new Promise((resolve, reject) => {
       db.query(sql, data, (error, result) => {
         if (error) {
@@ -61,10 +62,10 @@ module.exports = {
       })
     })
   },
-  deleteBook: (data) => {
-    const sql = 'DELETE FROM books WHERE ?'
+  deleteHistory: () => {
+    const sql = 'TRUNCATE TABLE histories'
     return new Promise((resolve, reject) => {
-      db.query(sql, data, (error, result) => {
+      db.query(sql, (error, result) => {
         if (error) {
           reject(Error(error))
         }

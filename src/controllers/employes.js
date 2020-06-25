@@ -163,10 +163,12 @@ module.exports = {
             id: data[0].id,
             name: data[0].name,
             email: data[0].email,
+            role: data[0].role,
             token: jwt.sign(
               {
                 name: data[0].name,
-                email: data[0].email
+                email: data[0].email,
+                role: 'admin'
               },
               process.env.JWT_KEY,
               {
@@ -219,6 +221,24 @@ module.exports = {
       const data = {
         success: false,
         msg: `Employee with id ${request.params.id} not found!`
+      }
+      response.status(400).send(data)
+    }
+  },
+  getIdEmployee: async (request, response) => {
+    const { id } = request.params
+    const fetchEmployee = await employeeModel.getEmployeeByCondition({ id: parseInt(id) })
+    if (fetchEmployee.length > 0) {
+          const data = {
+            success: true,
+            msg: 'Success',
+            data: fetchEmployee[0]
+          }
+          response.status(200).send(data)
+    } else {
+      const data = {
+        success: false,
+        msg: `user with id ${request.params.id} not found!`
       }
       response.status(400).send(data)
     }

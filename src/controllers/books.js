@@ -1,4 +1,5 @@
 const bookModel = require('../models/books')
+const genreModel = require('../models/genres')
 const {APP_URL} = process.env
 const config = require('../utils/upload')
 const upload = config.single('picture')
@@ -20,7 +21,7 @@ const getPerPage = (_perPage) => {
   if (perPage && perPage > 0) {
     return perPage
   } else {
-    return 5
+    return 9
   }
 }
 
@@ -107,30 +108,30 @@ module.exports = {
           if (title && description && genre && title !== '' && description !== '' && genre !== '') {
             const isExsist = await bookModel.getBookByCondition({ title })
             if (isExsist.length < 1) {
-              const bookData = {
-                title,
-                description,
-                genre,
-                author,
-                picture: `${process.env.APP_URL}/img/${request.file.filename}`,
-                created_at: moment().format('YYYY-MM-DD hh:mm:ss')
-              }
-              const result = await bookModel.createBook(bookData)
-              if (result) {
-                const data = {
-                  success: true,
-                  msg: 'Book data succesfully added!',
-                  data: bookData
+                const bookData = {
+                  title,
+                  description,
+                  genre,
+                  author,
+                  picture: `${process.env.APP_URL}/img/${request.file.filename}`,
+                  created_at: moment().format('YYYY-MM-DD hh:mm:ss')
                 }
-                response.status(201).send(data)
-              } else {
+                const result = await bookModel.createBook(bookData)
+                if (result) {
                   const data = {
-                  success: false,
-                  msg: 'Failed to add Book',
-                  data: request.body
+                    success: true,
+                    msg: 'Book data succesfully added!',
+                    data: bookData
+                  }
+                  response.status(201).send(data)
+                } else {
+                    const data = {
+                    success: false,
+                    msg: 'Failed to add Book',
+                    data: request.body
+                  }
+                  response.status(400).send(data)
                 }
-                response.status(400).send(data)
-              }
             } else {
               const data = {
               success: false,
@@ -172,24 +173,22 @@ module.exports = {
       }
   
       try {
-        if (!request.file) {
-          return response.status(500).json({
-            status: 500,
-            message: "Please choosing files...",
-            data: [],
-          });
-        } else {
           const { id } = request.params
           const { title, description, genre, author } = request.body
           const fetchBook = await bookModel.getBookByCondition({ id: parseInt(id) })
+          
           if (fetchBook.length > 0) {
+            let latestPicture = fetchBook[0].picture
+            if (request.file) {
+              latestPicture = request.file.filename
+            }
             if (title && description && genre && title !== '' && description !== '' && genre !== '') {
               const bookData = [
                 { title,
                   description,
                   genre,
                   author,
-                  picture: `${process.env.APP_URL}/img/${request.file.filename}`,
+                  picture: request.file ? `${process.env.APP_URL}/img/${request.file.filename}` : latestPicture,
                   updated_at: moment().format('YYYY-MM-DD hh:mm:ss')
                 },
                 { id: parseInt(id) }
@@ -223,7 +222,6 @@ module.exports = {
             }
             response.status(400).send(data)
           }
-        }
       } catch (error) {
         return response
           .status(500)

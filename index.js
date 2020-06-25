@@ -6,7 +6,7 @@ const cors = require('cors')
 
 const app = express()
 app.use(cors())
-
+app.use(bodyparser.json())
 app.use(bodyparser.urlencoded({extended:false}))
 app.use('/img', express.static('uploads'))
 
@@ -19,12 +19,14 @@ const books = require('./src/routes/books')
 const users = require('./src/routes/users')
 const employes = require('./src/routes/employes')
 const genres = require('./src/routes/genres')
+const histories = require('./src/routes/histories')
 const transactions = require('./src/routes/transactions')
 
 app.use('/books', books)
 app.use('/users', users)
 app.use('/employes', employes)
 app.use('/genres', genres)
+app.use('/histories', histories)
 app.use('/transactions', transactions)
 
 app.get('*', (request,response) => {

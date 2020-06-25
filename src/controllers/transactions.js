@@ -79,15 +79,15 @@ module.exports = {
   },
   createTransaction: async (request, response) => {
     const { book_id, employee_id, user_id } = request.body
-    if (book_id && employee_id && user_id && book_id !== '' && user_id !== '' && employee_id !== '') {
+    if (book_id && user_id && book_id !== '' && user_id !== '') {
       const isExists = await transactionModel.getTransactionByCondition({ book_id })
       if (isExists.length < 1) {
         const transactionData = {
           book_id,
           employee_id,
           user_id,
-          status: 1,
-          created_at: moment().format('YYYY-MM-DD hh:mm:ss')
+          status: 3,
+          created_at: moment().format('LLLL')
         }
         const result = await transactionModel.createTransaction(transactionData)
         if (result) {
@@ -120,19 +120,13 @@ module.exports = {
       response.status(400).send(data)
     }
   },
-  updateTransaction: async (request, response) => {
+  setPenalty: async (request, response) => {
     const { id } = request.params
-    const { book_id, employee_id, user_id, status } = request.body
     const fetchTransaction = await transactionModel.getTransactionByCondition({ id: parseInt(id) })
     if (fetchTransaction.length > 0) {
-      if (book_id && employee_id && user_id && status && book_id !== '' && user_id !== '' && employee_id !== '' && status !== '') {
         const transactionData = [
           { 
-            book_id,
-            employee_id,
-            user_id,
-            status,
-            updated_at: moment().format('YYYY-MM-DD hh:mm:ss')
+            status: 2
           },
           { id: parseInt(id) }
         ]
@@ -151,7 +145,41 @@ module.exports = {
           }
           response.status(400).send(data)
         }
+    } else {
+      const data = {
+        success: false,
+        msg: `transaction with id ${request.params.id} not found!`
       }
+      response.status(400).send(data)
+    }
+  },
+  setAcc: async (request, response) => {
+    const { id } = request.params
+    const { employee_id} = request.body
+    const fetchTransaction = await transactionModel.getTransactionByCondition({ id: parseInt(id) })
+    if (fetchTransaction.length > 0) {
+        const transactionData = [
+          { 
+            status: 1,
+            employee_id
+          },
+          { id: parseInt(id) }
+        ]
+        const result = await transactionModel.updateTransaction(transactionData)
+        if (result) {
+          const data = {
+            success: true,
+            msg: 'transaction has been updated',
+            data: transactionData[0]
+          }
+          response.status(200).send(data)
+        } else {
+          const data = {
+            success: false,
+            msg: 'failed to update'
+          }
+          response.status(400).send(data)
+        }
     } else {
       const data = {
         success: false,

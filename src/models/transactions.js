@@ -2,7 +2,8 @@ const db = require('../utils/DB')
 
 module.exports = {
   getAllTransaction: (start, end, data = {}) => {
-    const sql = `SELECT transactions.id, books.title, employes.name as employee, 
+    const sql = `SELECT transactions.id, 
+    books.title, employes.name as employee, 
     users.name as user, statuses.name as status, transactions.created_at, transactions.updated_at 
     FROM transactions
     JOIN books ON transactions.book_id=books.id 
