@@ -3,12 +3,10 @@ const transactionsController = require('../controllers/transactions')
 const booksController = require('../controllers/books')
 const auth = require('../utils/auth')
 
-// router.use(auth)
 router.get('/', transactionsController.getAllTransactions)
-// router.use(auth)
-router.post('/', transactionsController.createTransaction)
-router.patch('/penalty/:id', transactionsController.setPenalty)
-router.patch('/acc/:id', transactionsController.setAcc)
-router.delete('/:id', transactionsController.deleteTransaction)
+router.post('/', auth, transactionsController.createTransaction)
+router.patch('/penalty/:id', auth, transactionsController.setPenalty)
+router.patch('/acc/:id', auth, transactionsController.setAcc)
+router.delete('/:id', auth, transactionsController.deleteTransaction)
 
 module.exports = router
