@@ -41,7 +41,19 @@ module.exports = {
     })
   },
   getHistoryByCondition: (data) => {
-    const sql = 'SELECT * FROM histories WHERE ?'
+    const sql = 'SELECT * FROM histories WHERE ? ORDER BY id DESC'
+    return new Promise((resolve, reject) => {
+      db.query(sql, data, (error, result) => {
+        if (error) {
+          reject(Error(error))
+        }
+        resolve(result)
+      })
+    })
+  },
+  getHistoryById: (data, condtion) => {
+    const sql = `SELECT * FROM histories WHERE ? 
+    && title LIKE '${condtion.search || ''}%' ORDER BY id DESC`
     return new Promise((resolve, reject) => {
       db.query(sql, data, (error, result) => {
         if (error) {

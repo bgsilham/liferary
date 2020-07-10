@@ -58,6 +58,25 @@ module.exports = {
       })
     })
   },
+  getTransactionByUser: (data, condition) => {
+    const sql = `SELECT transactions.id, 
+    books.title, employes.name as employee, 
+    users.name as user, transactions.status, transactions.created_at, transactions.updated_at 
+    FROM transactions
+    JOIN books ON transactions.book_id=books.id 
+    JOIN employes ON transactions.employee_id=employes.id
+    JOIN users ON transactions.user_id=users.id WHERE ? &&
+    books.title LIKE '${condition.search || ''}%'
+    ORDER BY transactions.id ${parseInt(condition.sort) ? 'DESC' : 'ASC'}`
+    return new Promise((resolve, reject) => {
+      db.query(sql, data, (error, result) => {
+        if (error) {
+          reject(Error(error))
+        }
+        resolve(result)
+      })
+    })
+  },
   updateTransaction: (data) => {
     const sql = 'UPDATE transactions SET ? WHERE ?'
     return new Promise((resolve, reject) => {

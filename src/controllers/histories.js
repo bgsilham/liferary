@@ -167,11 +167,10 @@ module.exports = {
 
     const prevLink = getPrevLinkQueryString(getPage(page), request.query)
     const nextLink = getNextLinkQueryString(getPage(page), totalPage, request.query)
-    const data = await historyModel.getHistoryByCondition({ user }, sliceStart, sliceEnd, condition)
-    if (data.length > 0) {
+    const data = await historyModel.getHistoryById({ user }, condition)
       const history = {
         success: true,
-        msg: 'history has been updated',
+        msg: 'List Histories',
         data: data,
         pageInfo: {
           page: getPage(page),
@@ -183,13 +182,6 @@ module.exports = {
         }
       }
       response.status(200).send(history)
-    } else {
-      const history = {
-        succes: false,
-        msg: 'history not found'
-      }
-      response.status(401).send(history)
-    }
   },
   deleteHistory: async (request, response) => {
       const result = await historyModel.deleteHistory()

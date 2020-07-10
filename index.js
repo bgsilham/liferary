@@ -21,6 +21,7 @@ const employes = require('./src/routes/employes')
 const genres = require('./src/routes/genres')
 const histories = require('./src/routes/histories')
 const transactions = require('./src/routes/transactions')
+const reviews = require('./src/routes/reviews')
 
 app.use('/books', books)
 app.use('/users', users)
@@ -28,6 +29,7 @@ app.use('/employes', employes)
 app.use('/genres', genres)
 app.use('/histories', histories)
 app.use('/transactions', transactions)
+app.use('/reviews', reviews)
 
 app.get('*', (request,response) => {
     response.status(404).send('Page Not found')

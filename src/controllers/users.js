@@ -152,7 +152,9 @@ module.exports = {
             id: data[0].id,
             name: data[0].name,
             email: data[0].email,
-            role: data[0].role,
+            image: data[0].image,
+            address: data[0].address,
+            age: data[0].age,
             token: jwt.sign(
               {
                 id: data[0].id,
@@ -179,14 +181,16 @@ module.exports = {
   },
   updateUser: async (request, response) => {
     const { id } = request.params
-    const { name, email, password } = request.body
+    const { name, image, address, age } = request.body
     const fetchUser = await userModel.getUserByCondition({ id: parseInt(id) })
     if (fetchUser.length > 0) {
-      if (name && email && password && name !== '' && email !== '' && password !== '') {
+      if (name && name !== '' && image && image !== '' && address && address !== '' && age && age !== '') {
         const userData = [
-          { name,
-            email,
-            password,
+          { 
+            name,
+            image,
+            address,
+            age,
             updated_at: moment().format('YYYY-MM-DD hh:mm:ss')
           },
           { id: parseInt(id) }
@@ -198,7 +202,9 @@ module.exports = {
             msg: 'user has been updated',
             data: {
               name: userData[0].name,
-              email: userData[0].email,
+              image: userData[0].image,
+              address: userData[0].address,
+              age: userData[0].age,
               updated_at: userData[0].updated_at
             }
           }

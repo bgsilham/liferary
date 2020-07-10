@@ -188,6 +188,21 @@ module.exports = {
       response.status(400).send(data)
     }
   },
+  getTransactionByUser: async (request, response) => {
+    const { user_id } = request.params
+    const {search, sort} = request.query
+    const condition = {
+      search,
+      sort
+    }
+    const fetchTransaction = await transactionModel.getTransactionByUser({ user_id: parseInt(user_id) }, condition)
+    const data = {
+      success: true,
+      msg: 'Success',
+      data: fetchTransaction
+    }
+    response.status(200).send(data)
+  },
   deleteTransaction: async (request, response) => {
     const { id } = request.params
     const _id = { id: parseInt(id) }

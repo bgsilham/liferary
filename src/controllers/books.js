@@ -51,10 +51,11 @@ const getPrevLinkQueryString = (page, currentQuery) => {
 
 module.exports = {
   getAllBooks: async (request, response) => {
-    const { page, limit, search, sort } = request.query
+    const { page, limit, search, sort, genre } = request.query
     const condition = {
       search,
-      sort
+      sort,
+      genre
     }
     const sliceStart = (getPage(page) * getPerPage(limit)) - getPerPage(limit)
     const sliceEnd = (getPage(page) * getPerPage(limit))
@@ -66,6 +67,69 @@ module.exports = {
     const nextLink = getNextLinkQueryString(getPage(page), totalPage, request.query)
 
     const bookData = await bookModel.getAllBooks(sliceStart, sliceEnd, condition)
+    const data = {
+      success: true,
+      msg: 'List all Books',
+      data: bookData,
+      pageInfo: {
+        page: getPage(page),
+        totalPage,
+        perPage: getPerPage(limit),
+        totalData,
+        nextLink: nextLink && `${process.env.APP_URL}/books?${nextLink}`,
+        prevLink: prevLink && `${process.env.APP_URL}/books?${prevLink}`
+      }
+    }
+    response.status(200).send(data)
+  },
+  getLatestBooks: async (request, response) => {
+    const { page, limit, search, sort, genre, } = request.query
+    const condition = {
+      search,
+      sort,
+      genre
+    }
+    const sliceStart = (getPage(page) * getPerPage(limit)) - getPerPage(limit)
+    const sliceEnd = (getPage(page) * getPerPage(limit))
+    const totalData = await bookModel.getBookCount(condition)
+    const totalPage = Math.ceil(totalData / getPerPage(limit))
+    
+
+    const prevLink = getPrevLinkQueryString(getPage(page), request.query)
+    const nextLink = getNextLinkQueryString(getPage(page), totalPage, request.query)
+
+    const bookData = await bookModel.getLatestBooks(sliceStart, sliceEnd, condition)
+    const data = {
+      success: true,
+      msg: 'List all Books',
+      data: bookData,
+      pageInfo: {
+        page: getPage(page),
+        totalPage,
+        perPage: getPerPage(limit),
+        totalData,
+        nextLink: nextLink && `${process.env.APP_URL}/books?${nextLink}`,
+        prevLink: prevLink && `${process.env.APP_URL}/books?${prevLink}`
+      }
+    }
+    response.status(200).send(data)
+  },
+  getAuthorBooks: async (request, response) => {
+    const { page, limit, search, sort } = request.query
+    const condition = {
+      search,
+      sort,
+    }
+    const sliceStart = (getPage(page) * getPerPage(limit)) - getPerPage(limit)
+    const sliceEnd = (getPage(page) * getPerPage(limit))
+    const totalData = await bookModel.getBookCount(condition)
+    const totalPage = Math.ceil(totalData / getPerPage(limit))
+    
+
+    const prevLink = getPrevLinkQueryString(getPage(page), request.query)
+    const nextLink = getNextLinkQueryString(getPage(page), totalPage, request.query)
+
+    const bookData = await bookModel.getAuthorBooks(sliceStart, sliceEnd, condition)
     const data = {
       success: true,
       msg: 'List all Books',
@@ -228,6 +292,42 @@ module.exports = {
           .json({ status: 500, message: error, data: [] })
       }
     })
+  },
+  getIdBook: async (request, response) => {
+    const { id } = request.params
+    const fetchBook = await bookModel.getBookByCondition({ id: parseInt(id) })
+    if (fetchBook.length > 0) {
+          const data = {
+            success: true,
+            msg: 'Success',
+            data: fetchBook[0]
+          }
+          response.status(200).send(data)
+    } else {
+      const data = {
+        success: false,
+        msg: `book with id ${request.params.id} not found!`
+      }
+      response.status(400).send(data)
+    }
+  },
+  getBookByGenre: async (request, response) => {
+    const { genre } = request.params
+    const fetchBook = await bookModel.getBookByCondition({ genre: parseInt(genre) })
+    if (fetchBook.length > 0) {
+          const data = {
+            success: true,
+            msg: 'Success',
+            data: fetchBook
+          }
+          response.status(200).send(data)
+    } else {
+      const data = {
+        success: false,
+        msg: `book with id ${request.params.genre} not found!`
+      }
+      response.status(400).send(data)
+    }
   },
   deleteBook: async (request, response) => {
     const { id } = request.params
