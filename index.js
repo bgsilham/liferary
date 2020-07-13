@@ -1,6 +1,6 @@
 require('dotenv').config()
-const {APP_PORT} = process.env
-const PORT = process.env.APP_PORT || 5000
+// const {APP_PORT} = process.env
+const PORT = process.env.PORT || 5000
 const express = require('express')
 const bodyparser = require('body-parser')
 const cors = require('cors')
@@ -37,5 +37,5 @@ app.get('*', (request,response) => {
 })
 
 app.listen (PORT, () => {
-   console.log(`App is listen in ${APP_PORT} port`)
+   console.log(`App is listening`)
 })
