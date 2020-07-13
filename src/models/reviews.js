@@ -1,4 +1,4 @@
-const db = require('../utils/DB')
+const db = require('../utils/db')
 
 module.exports = {
   getAllReview: (start, end, data = {}) => {

@@ -1,4 +1,4 @@
-const db = require('../utils/DB')
+const db = require('../utils/db')
 
 module.exports = {
   getAllTransaction: (start, end, data = {}) => {
