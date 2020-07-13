@@ -58,7 +58,7 @@ module.exports = {
       })
     })
   },
-  getTransactionByUser: (data, condition) => {
+  getTransactionByUser: (data, condition, start, end) => {
     const sql = `SELECT transactions.id, 
     books.title, employes.name as employee, 
     users.name as user, transactions.status, transactions.created_at, transactions.updated_at 
@@ -67,7 +67,8 @@ module.exports = {
     JOIN employes ON transactions.employee_id=employes.id
     JOIN users ON transactions.user_id=users.id WHERE ? &&
     books.title LIKE '${condition.search || ''}%'
-    ORDER BY transactions.id ${parseInt(condition.sort) ? 'DESC' : 'ASC'}`
+    ORDER BY transactions.id ${parseInt(condition.sort) ? 'DESC' : 'ASC'}
+    LIMIT ${end} OFFSET ${start}`
     return new Promise((resolve, reject) => {
       db.query(sql, data, (error, result) => {
         if (error) {

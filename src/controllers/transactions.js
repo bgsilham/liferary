@@ -190,16 +190,33 @@ module.exports = {
   },
   getTransactionByUser: async (request, response) => {
     const { user_id } = request.params
-    const {search, sort} = request.query
+    const {search, sort, page, limit} = request.query
     const condition = {
       search,
       sort
     }
-    const fetchTransaction = await transactionModel.getTransactionByUser({ user_id: parseInt(user_id) }, condition)
+
+    const totalData = await transactionModel.getTransactionCount()
+    const totalPage = Math.ceil(totalData / getPerPage(limit))
+    const sliceStart = (getPage(page) * getPerPage(limit)) - getPerPage(limit)
+    const sliceEnd = (getPage(page) * getPerPage(limit))
+
+    const prevLink = getPrevLinkQueryString(getPage(page), request.query)
+    const nextLink = getNextLinkQueryString(getPage(page), totalPage, request.query)
+
+    const fetchTransaction = await transactionModel.getTransactionByUser({ user_id: parseInt(user_id) }, condition, sliceStart, sliceEnd)
     const data = {
       success: true,
       msg: 'Success',
-      data: fetchTransaction
+      data: fetchTransaction,
+      pageInfo: {
+        page: getPage(page),
+        totalPage,
+        perPage: getPerPage(limit),
+        totalData,
+        nextLink: nextLink && `${process.env.APP_URL}/transactions?${nextLink}`,
+        prevLink: prevLink && `${process.env.APP_URL}/transactions?${prevLink}`
+      }
     }
     response.status(200).send(data)
   },
