@@ -1,5 +1,6 @@
 require('dotenv').config()
 const {APP_PORT} = process.env
+const PORT = process.env.APP_PORT || 5000
 const express = require('express')
 const bodyparser = require('body-parser')
 const cors = require('cors')
@@ -35,6 +36,6 @@ app.get('*', (request,response) => {
     response.status(404).send('Page Not found')
 })
 
-app.listen (APP_PORT, () => {
+app.listen (PORT, () => {
    console.log(`App is listen in ${APP_PORT} port`)
 })
