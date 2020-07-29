@@ -1,6 +1,15 @@
 # Liferary
 A backend for library application system
 
+<<<<<<< HEAD
+=======
+## DEMO ( https://liferary-backend.herokuapp.com/ )
+
+## Installation
+1. Install depedencies
+2. Setup ENV
+
+>>>>>>> origin/mobile
 ## Stacks
 - NodeJS
 - ExpressJS
